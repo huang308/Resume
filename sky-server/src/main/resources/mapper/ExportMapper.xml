@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.ExportMapper">
+    <select id="newUser" resultType="java.lang.Integer">
+        select count(id) from user
+        <where>
+        <if test="begin!=null"> and create_time &gt;= #{begin}</if>
+        <if test="end!=null">and create_time &lt;= #{end}</if>
+        </where>
+    </select>
+
+
+    <select id="sumByMap" resultType="java.lang.Double">
+        select ifnull(sum(amount),0.0) from orders
+        <where>
+            <if test="begin!=null">and checkout_time &gt;=#{begin}</if>
+        <if test="end!=null">and checkout_time &lt;=#{end}</if>
+        <if test="status!=null">and status=#{status}</if>
+        </where>
+    </select>
+    <select id="countByMap" resultType="java.lang.Integer">
+       select ifnull(count(id),0)from orders
+       <where>
+           <if test="begin!=null">and checkout_time &gt;=#{begin}</if>
+           <if test="end!=null">and checkout_time &lt;=#{end}</if>
+           <if test="status!=null">and status=#{status}</if>
+       </where>
+    </select>
+    <select id="totaiOrder" resultType="java.lang.Integer">
+        select count(id) from orders <where>    <if test="begin!=null">and checkout_time &gt;=#{begin}</if>
+        <if test="end!=null">and checkout_time &lt;=#{end}</if>
+        and status&lt;=5;
+    </where>
+    </select>
+    <select id="top10Sales" resultType="java.util.Map">
+        select od.name as name, ifnull(sum(od.number),0) as number
+        from order_detail od
+                 left join orders o on od.order_id = o.id
+        <where>
+            <if test="begin!=null">and o.checkout_time &gt;= #{begin}</if>
+            <if test="end!=null">and o.checkout_time &lt;= #{end}</if>
+            <if test="status!=null">and o.status = #{status}</if>
+        </where>
+        group by od.name
+        order by number desc
+        limit 10
+    </select>
+</mapper>
